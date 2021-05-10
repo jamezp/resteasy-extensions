@@ -14,26 +14,21 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
 
-package org.jboss.resteasy.common.encoding;
+package org.jboss.resteasy.security.encoding;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import java.util.logging.Logger;
+import javax.ws.rs.core.Feature;
+import javax.ws.rs.core.FeatureContext;
+import javax.ws.rs.ext.Provider;
 
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
-public class EncoderTestCase {
-
-    @Test
-    public void testResolver() {
-        final Encoder encoder = Encoder.resolve();
-        Assertions.assertEquals(XmlEncoder.class, encoder.getClass());
-    }
-
-    @Test
-    public void testXmlEncoder() {
-        final Encoder encoder = new XmlEncoder();
-        Assertions.assertEquals("&lt;div&gt;&quot;&#39;You&#39; &amp; I&quot;&lt;/div&gt;",
-                encoder.encode("<div>\"'You' & I\"</div>"));
+@Provider
+public class RegisterEncoderFeature implements Feature {
+    @Override
+    public boolean configure(final FeatureContext context) {
+        Logger.getLogger(RegisterEncoderFeature.class.getName()).warning(String.format("------ %s", context));
+        return true;
     }
 }

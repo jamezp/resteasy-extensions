@@ -23,10 +23,12 @@ import java.util.Iterator;
 import java.util.Map;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.Response;
 
 import org.jboss.arquillian.junit5.ArquillianExtension;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -35,6 +37,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
  */
 @ExtendWith(ArquillianExtension.class)
 abstract class AbstractEncoderTestCase {
+    static final String SCRIPT_PARAM = "<script>console.log('attacked')<%2fscript>";
+    static final String ESCAPED_PARAM = "&lt;script&gt;console.log(&#39;attacked&#39;)&lt;%2fscript&gt;";
+
     @ArquillianResource
     URL baseUrl;
 
@@ -80,6 +85,14 @@ abstract class AbstractEncoderTestCase {
             sb.append(encode(path));
         }
         return sb;
+    }
+
+    void validateResponse(final Response response, final String expectedText) {
+        Assertions.assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        final String asText = response.readEntity(String.class);
+
+        Assertions.assertNotNull(asText);
+        Assertions.assertEquals(expectedText, asText);
     }
 
     static String encode(final String value) throws UnsupportedEncodingException {

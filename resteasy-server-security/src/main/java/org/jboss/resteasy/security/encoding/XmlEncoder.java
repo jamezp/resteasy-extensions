@@ -14,9 +14,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
 
-package org.jboss.resteasy.common.encoding;
+package org.jboss.resteasy.security.encoding;
 
-import org.kohsuke.MetaInfServices;
+import org.jboss.resteasy.security.encoding.spi.Encoder;
 
 /**
  * An encoder that encodes HTML elements in a string.
@@ -52,8 +52,9 @@ import org.kohsuke.MetaInfServices;
  *
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
-@MetaInfServices(Encoder.class)
 public class XmlEncoder implements Encoder {
+
+    public static final XmlEncoder INSTANCE = new XmlEncoder();
 
     @Override
     public String encode(final CharSequence value) {

@@ -14,36 +14,32 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
 
-package org.jboss.resteasy.security.encoding;
+package org.jboss.resteasy.extensions.test.encoding.providers;
 
-import javax.ws.rs.ext.ParamConverter;
+import javax.annotation.Priority;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.ext.ContextResolver;
+import javax.ws.rs.ext.Provider;
 
 import org.jboss.resteasy.security.encoding.spi.Encoder;
 
 /**
- * Encodes a parameter with the given encoder.
- *
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
-public class EncoderParamConverter implements ParamConverter<String> {
-    private final Encoder encoder;
-
-    /**
-     * Create a new parameter encoder.
-     *
-     * @param encoder the encoder to use
-     */
-    public EncoderParamConverter(final Encoder encoder) {
-        this.encoder = encoder;
-    }
-
+@Provider
+@Produces({
+        MediaType.APPLICATION_ATOM_XML,
+        MediaType.APPLICATION_SVG_XML,
+        MediaType.APPLICATION_XHTML_XML,
+        MediaType.APPLICATION_XML,
+        MediaType.TEXT_XML,
+        MediaType.TEXT_HTML
+})
+@Priority(500)
+public class DisableEncodingProvider implements ContextResolver<Encoder> {
     @Override
-    public String fromString(final String value) {
-        return encoder.encode(value);
-    }
-
-    @Override
-    public String toString(final String value) {
-        return encoder.encode(value);
+    public Encoder getContext(final Class<?> type) {
+        return (value) -> (value == null ? null : value.toString());
     }
 }

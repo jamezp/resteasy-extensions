@@ -37,7 +37,7 @@ import org.jboss.resteasy.security.encoding.annotations.EncodeParameter;
 public class ParameterConversionResource {
 
     @GET
-    @Produces(MediaType.TEXT_HTML)
+    @Produces({MediaType.TEXT_HTML, MediaType.TEXT_PLAIN})
     @Path("/param/{name}")
     public Response getParam(@PathParam("name") final String name) {
         return createResponse(name);
@@ -54,6 +54,7 @@ public class ParameterConversionResource {
     @Produces(MediaType.TEXT_HTML)
     @Consumes(MediaType.TEXT_HTML)
     @Path("/html/{name}")
+    @EncodeParameter(false)
     public Response getHtml(@PathParam("name") final String name) {
         return createResponse(name);
     }

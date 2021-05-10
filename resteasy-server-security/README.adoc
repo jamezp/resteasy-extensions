@@ -23,7 +23,7 @@ By default, it will encode parameters annotated with:
 * `@MatrixParam`
 * `@FormParam`
 
-You can implement an `org.jboss.resteasy.security.encoding.spi.EncoderConfiguration`, which is loaded as a service, to override the default configuration.
+You can implement an `EncoderFactory`, which is loaded as a service, to override the default configuration.
 This includes overriding the parameter annotations which automatically trigger a parameter to be encoded.
 It also allows you to completely disable this feature.
 

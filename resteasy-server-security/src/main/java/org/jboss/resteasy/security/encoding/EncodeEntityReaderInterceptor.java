@@ -24,8 +24,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.ReaderInterceptor;
 import javax.ws.rs.ext.ReaderInterceptorContext;
 
-import org.jboss.resteasy.common.encoding.Encoder;
-import org.jboss.resteasy.common.utils.MediaTypes;
+import org.jboss.resteasy.security.encoding.spi.Encoder;
+import org.jboss.resteasy.security.encoding.util.MediaTypes;
 import org.jboss.resteasy.security.encoding.annotations.EncodeEntity;
 
 /**

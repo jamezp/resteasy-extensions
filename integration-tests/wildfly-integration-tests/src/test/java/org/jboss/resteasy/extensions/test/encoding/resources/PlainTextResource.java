@@ -14,19 +14,25 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
 
-package org.jboss.resteasy.common.encoding;
+package org.jboss.resteasy.extensions.test.encoding.resources;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
-class DefaultEncoder implements Encoder {
-    static final Encoder INSTANCE = new DefaultEncoder();
+@Path("/text")
+@Produces(MediaType.TEXT_PLAIN)
+public class PlainTextResource {
 
-    @Override
-    public String encode(final CharSequence value) {
-        if (value == null) {
-            return null;
-        }
-        return String.valueOf(value);
+    @GET
+    @Path("/param/{name}")
+    public Response textParam(@PathParam("name") final String name) {
+        return Response.ok(String.format("Hello %s", name)).build();
     }
 }

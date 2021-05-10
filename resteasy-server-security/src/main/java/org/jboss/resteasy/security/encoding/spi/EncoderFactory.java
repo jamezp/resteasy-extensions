@@ -14,36 +14,12 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
 
-package org.jboss.resteasy.security.encoding;
-
-import javax.ws.rs.ext.ParamConverter;
-
-import org.jboss.resteasy.security.encoding.spi.Encoder;
+package org.jboss.resteasy.security.encoding.spi;
 
 /**
- * Encodes a parameter with the given encoder.
- *
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
-public class EncoderParamConverter implements ParamConverter<String> {
-    private final Encoder encoder;
+public interface EncoderFactory {
 
-    /**
-     * Create a new parameter encoder.
-     *
-     * @param encoder the encoder to use
-     */
-    public EncoderParamConverter(final Encoder encoder) {
-        this.encoder = encoder;
-    }
-
-    @Override
-    public String fromString(final String value) {
-        return encoder.encode(value);
-    }
-
-    @Override
-    public String toString(final String value) {
-        return encoder.encode(value);
-    }
+    Encoder create();
 }

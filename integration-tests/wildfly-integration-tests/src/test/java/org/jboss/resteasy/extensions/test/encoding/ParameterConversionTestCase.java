@@ -29,7 +29,6 @@ import org.jboss.resteasy.extensions.test.TestDeployment;
 import org.jboss.resteasy.extensions.test.encoding.resources.AnnotatedParameterConversionResource;
 import org.jboss.resteasy.extensions.test.encoding.resources.ParameterConversionResource;
 import org.jboss.shrinkwrap.api.Archive;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -47,67 +46,67 @@ public class ParameterConversionTestCase extends AbstractEncoderTestCase {
 
     @Test
     public void pathParamGet() throws Exception {
-        final String url = createUrl("greet", "param", "<script>console.log('attacked')</script>");
+        final String url = createUrl("greet", "param", SCRIPT_PARAM);
         final Response response = client.target(url)
                 .request()
                 .get();
-        validateResponse(response);
+        validateResponse(response, getEscapedMessage());
     }
 
     @Test
     public void pathParamGetNoEncode() throws Exception {
-        final String url = createUrl("annotated", "noencode", "param", "<script>console.log('attacked')</script>");
+        final String url = createUrl("annotated", "noencode", "param", SCRIPT_PARAM);
         final Response response = client.target(url)
                 .request()
                 .get();
-        validateResponse(response, "<script>console.log('attacked')</script>");
+        validateResponse(response, getMessage(SCRIPT_PARAM));
     }
 
     @Test
     public void pathParamGetEncode() throws Exception {
-        final String url = createUrl("annotated", "encode", "param", "<script>console.log('attacked')</script>");
+        final String url = createUrl("annotated", "encode", "param", SCRIPT_PARAM);
         final Response response = client.target(url)
                 .request()
                 .get();
-        validateResponse(response);
+        validateResponse(response, getEscapedMessage());
     }
 
     @Test
     public void queryParamGet() throws Exception {
-        final String url = createUrl(Collections.singletonMap("name", "<script>console.log('attacked')</script>"), "greet", "query");
+        final String url = createUrl(Collections.singletonMap("name", SCRIPT_PARAM), "greet", "query");
         final Response response = client.target(url)
                 .request()
                 .get();
-        validateResponse(response);
+        validateResponse(response, getEscapedMessage());
     }
 
     @Test
     public void pathParamGetHtml() throws Exception {
-        final String url = createUrl("greet", "html", "<script>console.log('attacked')</script>");
+        final String url = createUrl("greet", "html", SCRIPT_PARAM);
         final Response response = client.target(url)
                 .request()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML)
                 .get();
-        validateResponse(response, "<script>console.log('attacked')</script>");
+        validateResponse(response, getMessage(SCRIPT_PARAM));
     }
 
     @Test
     public void pathParamPost() throws Exception {
-        final String url = createUrl("greet", "post", "param", "<script>console.log('attacked')</script>");
+        final String url = createUrl("greet", "post", "param", SCRIPT_PARAM);
         final Response response = client.target(url)
                 .request()
                 .post(null);
-        validateResponse(response);
+        validateResponse(response, getEscapedMessage());
     }
 
     @Test
     public void postFormHtml() throws Exception {
         final String url = createUrl("greet", "form", "html");
-        final Form form = new Form("name", "<script>console.log('attacked')</script>");
+        final Form form = new Form("name", SCRIPT_PARAM);
         final Response response = client.target(url)
                 .request()
                 .post(Entity.form(form));
-        validateResponse(response, "<script>console.log('attacked')</script>");
+        validateResponse(response, getMessage(SCRIPT_PARAM));
     }
 
     @Test
@@ -119,28 +118,24 @@ public class ParameterConversionTestCase extends AbstractEncoderTestCase {
         final Response response = client.target(url.toString())
                 .request()
                 .get();
-        validateResponse(response, "&lt;script&gt;alert(&#39;first&#39;)&lt;/script&gt; &lt;script&gt;alert(&#39;middle&#39;)&lt;/script&gt; &lt;script&gt;alert(&#39;last&#39;)&lt;/script&gt;");
+        validateResponse(response, getMessage("&lt;script&gt;alert(&#39;first&#39;)&lt;/script&gt; &lt;script&gt;alert(&#39;middle&#39;)&lt;/script&gt; &lt;script&gt;alert(&#39;last&#39;)&lt;/script&gt;"));
     }
 
     @Test
     public void postForm() throws Exception {
         final String url = createUrl("greet", "form");
-        final Form form = new Form("name", "<script>console.log('attacked')</script>");
+        final Form form = new Form("name", SCRIPT_PARAM);
         final Response response = client.target(url)
                 .request()
                 .post(Entity.form(form));
-        validateResponse(response);
+        validateResponse(response, getEscapedMessage());
     }
 
-    private void validateResponse(final Response response) {
-        validateResponse(response, "&lt;script&gt;console.log(&#39;attacked&#39;)&lt;/script&gt;");
+    private static String getEscapedMessage() {
+        return getMessage(ESCAPED_PARAM);
     }
 
-    private void validateResponse(final Response response, final String expectedText) {
-        Assertions.assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        final String asText = response.readEntity(String.class);
-
-        Assertions.assertNotNull(asText);
-        Assertions.assertEquals(String.format("<h1>Hello %s</h1>", expectedText), asText);
+    private static String getMessage(final String paramValue) {
+        return String.format("<h1>Hello %s</h1>", paramValue);
     }
 }

@@ -14,20 +14,24 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
 
-package org.jboss.resteasy.common;
+package org.jboss.resteasy.security.encoding.spi;
+
+import java.util.Collection;
 
 /**
- * Defines the priority of the given object.
+ * An API used to encode {@link CharSequence} values.
  *
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
 @FunctionalInterface
-public interface Priority {
+public interface Encoder {
 
     /**
-     * Returns the priority of the object.
+     * Encodes the value.
      *
-     * @return the priority
+     * @param value the value to encode
+     *
+     * @return the encoded value
      */
-    int priority();
+    String encode(CharSequence value);
 }

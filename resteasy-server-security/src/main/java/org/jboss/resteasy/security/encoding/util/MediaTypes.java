@@ -14,12 +14,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
 
-package org.jboss.resteasy.common.utils;
+package org.jboss.resteasy.security.encoding.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -30,15 +29,14 @@ import javax.ws.rs.core.MediaType;
 public class MediaTypes {
 
     /**
-     * Determines the media types for the {@link Consumes} annotation. If the annotation is {@code null} the
-     * {@link MediaType#WILDCARD_TYPE} media type is returned.
+     * Parses the string media types and returns a collection of {@link MediaType}.
      *
-     * @param consumes the annotation used to determine the supported media types
+     * @param mediaTypes the media types to parse
      *
-     * @return the supported media types
+     * @return the media types
      */
-    public static Collection<MediaType> getMediaTypes(final Consumes consumes) {
-        return consumes == null ? Collections.singleton(MediaType.WILDCARD_TYPE) : toMediaTypes(consumes.value());
+    public static Collection<MediaType> getMediaTypes(final String[] mediaTypes) {
+        return mediaTypes == null || mediaTypes.length == 0 ? Collections.singleton(MediaType.WILDCARD_TYPE) : toMediaTypes(mediaTypes);
     }
 
     /**

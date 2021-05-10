@@ -14,27 +14,33 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
 
-package org.jboss.resteasy.common.encoding;
+package org.jboss.resteasy.security.encoding;
+
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.ext.ContextResolver;
+import javax.ws.rs.ext.Provider;
+
+import org.jboss.resteasy.security.encoding.spi.Encoder;
 
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
-class CompositeEncoder implements Encoder {
-    private final Iterable<Encoder> encoders;
-
-    CompositeEncoder(final Iterable<Encoder> encoders) {
-        this.encoders = encoders;
-    }
-
+@Provider
+@Produces({
+        MediaType.APPLICATION_ATOM_XML,
+        MediaType.APPLICATION_SVG_XML,
+        MediaType.APPLICATION_XHTML_XML,
+        MediaType.APPLICATION_XML,
+        MediaType.TEXT_XML,
+        MediaType.TEXT_HTML
+})
+public class XmlEncoderContextProvider implements ContextResolver<Encoder> {
     @Override
-    public String encode(final CharSequence value) {
-        if (value == null) {
-            return null;
+    public Encoder getContext(final Class<?> type) {
+        if (Encoder.class.isAssignableFrom(type)) {
+            return XmlEncoder.INSTANCE;
         }
-        String result = String.valueOf(value);
-        for (Encoder encoder : encoders) {
-            result = encoder.encode(result);
-        }
-        return result;
+        return null;
     }
 }

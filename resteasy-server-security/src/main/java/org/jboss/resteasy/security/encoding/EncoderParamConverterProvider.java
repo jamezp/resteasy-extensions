@@ -18,61 +18,54 @@ package org.jboss.resteasy.security.encoding;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.ext.ParamConverter;
 import javax.ws.rs.ext.ParamConverterProvider;
+import javax.ws.rs.ext.Providers;
 
 import org.jboss.resteasy.security.encoding.annotations.EncodeParameter;
-import org.jboss.resteasy.security.encoding.spi.EncoderConfiguration;
+import org.jboss.resteasy.security.encoding.spi.Encoder;
 
 /**
  * A provider which determines if a {@link EncoderParamConverter} should be used.
  * <p>
- * For a {@link EncoderParamConverter} the parameter must be a {@link String} and have a valid annotation. The valid
- * annotation comes from the {@link EncoderConfiguration#isSupportedAnnotation(Annotation)}.
- * </p>
- * <p>
- * If the provider is created in strict mode the parameter must be annotated {@link EncodeParameter}. The check for the
- * {@linkplain EncoderConfiguration#isSupportedAnnotation(Annotation) supported annotations} is skipped.
+ * For a {@link EncoderParamConverter} the parameter must be a {@link String}.
  * </p>
  *
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  * @see EncoderParamConverter
  */
 public class EncoderParamConverterProvider implements ParamConverterProvider {
-    private final EncoderConfiguration config;
-    private final boolean strict;
+    private final ParamConverter<String> converter;
+
+    @Context
+    private Providers providers;
 
     /**
      * Creates a new provider.
      *
-     * @param config the configuration to use
-     * @param strict {@code true} if the {@link EncodeParameter} must be present on the parameter in order to be
-     *               encoded
+     * @param encoder the encoder used for the parameter converter
      */
-    public EncoderParamConverterProvider(final EncoderConfiguration config, final boolean strict) {
-        this.config = config;
-        this.strict = strict;
+    public EncoderParamConverterProvider(final Encoder encoder) {
+        this.converter = new EncoderParamConverter(encoder);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> ParamConverter<T> getConverter(final Class<T> rawType, final Type genericType, final Annotation[] annotations) {
-        if (rawType.isAssignableFrom(String.class) && hasSupportedAnnotation(annotations)) {
-            return (ParamConverter<T>) new EncoderParamConverter(config.getEncoder());
+        if (rawType.isAssignableFrom(String.class) && isEncodeParameter(annotations)) {
+            return (ParamConverter<T>) converter;
         }
         return null;
     }
 
-    private boolean hasSupportedAnnotation(final Annotation[] annotations) {
-        boolean result = false;
+    // TODO (jrp) rename this
+    private boolean isEncodeParameter(final Annotation[] annotations) {
         for (Annotation annotation : annotations) {
             if (annotation instanceof EncodeParameter) {
                 return ((EncodeParameter) annotation).value();
             }
-            if (!strict && config.isSupportedAnnotation(annotation)) {
-                result = true;
-            }
         }
-        return result;
+        return true;
     }
 }

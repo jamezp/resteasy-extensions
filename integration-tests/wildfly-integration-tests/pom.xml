@@ -25,6 +25,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <!-- TODO (jrp) we should rename this to something else. We can run the same tests on any container -->
     <artifactId>wildfly-integration-tests</artifactId>
     <name>RESTEasy Extensions: WildFly Integration Tests</name>
     <description>Integration tests executed on WildFly</description>
@@ -56,16 +57,16 @@
     <dependencies>
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-common-utils</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-server-security</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <!-- Test Dependencies -->
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.wildfly.arquillian</groupId>
             <artifactId>wildfly-arquillian-container-managed</artifactId>

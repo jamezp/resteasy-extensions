@@ -49,8 +49,8 @@ public class EntityEncoderTestCase extends AbstractEncoderTestCase {
         final String url = createUrl("entity", "post");
         final Response response = client.target(url)
                 .request()
-                .post(Entity.entity("<script>console.log('attacked')</script>", MediaType.TEXT_PLAIN_TYPE));
-        validateResponse(response);
+                .post(Entity.entity(SCRIPT_PARAM, MediaType.TEXT_PLAIN_TYPE));
+        validateResponse(response, getEscapedMessage());
     }
 
 
@@ -59,8 +59,8 @@ public class EntityEncoderTestCase extends AbstractEncoderTestCase {
         final String url = createUrl("annotated", "entity", "post");
         final Response response = client.target(url)
                 .request()
-                .post(Entity.entity("<script>console.log('attacked')</script>", MediaType.TEXT_HTML_TYPE));
-        validateResponse(response);
+                .post(Entity.entity(SCRIPT_PARAM, MediaType.TEXT_HTML_TYPE));
+        validateResponse(response, getEscapedMessage());
     }
 
     @Test
@@ -68,8 +68,8 @@ public class EntityEncoderTestCase extends AbstractEncoderTestCase {
         final String url = createUrl("annotated", "noencode", "entity", "post");
         final Response response = client.target(url)
                 .request()
-                .post(Entity.entity("<script>console.log('attacked')</script>", MediaType.TEXT_PLAIN_TYPE));
-        validateResponse(response, "<script>console.log('attacked')</script>");
+                .post(Entity.entity(SCRIPT_PARAM, MediaType.TEXT_PLAIN_TYPE));
+        validateResponse(response, getMessage(SCRIPT_PARAM));
     }
 
     @Test
@@ -77,19 +77,15 @@ public class EntityEncoderTestCase extends AbstractEncoderTestCase {
         final String url = createUrl("annotated", "noencode", "entity", "encode");
         final Response response = client.target(url)
                 .request()
-                .post(Entity.entity("<script>console.log('attacked')</script>", MediaType.TEXT_PLAIN_TYPE));
-        validateResponse(response);
+                .post(Entity.entity(SCRIPT_PARAM, MediaType.TEXT_PLAIN_TYPE));
+        validateResponse(response, getEscapedMessage());
     }
 
-    private void validateResponse(final Response response) {
-        validateResponse(response, "&lt;script&gt;console.log(&#39;attacked&#39;)&lt;/script&gt;");
+    private static String getEscapedMessage() {
+        return getMessage(ESCAPED_PARAM);
     }
 
-    private void validateResponse(final Response response, final String expectedText) {
-        Assertions.assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        final String asText = response.readEntity(String.class);
-
-        Assertions.assertNotNull(asText);
-        Assertions.assertEquals(String.format("<h1>Hello %s</h1>", expectedText), asText);
+    private static String getMessage(final String paramValue) {
+        return String.format("<h1>Hello %s</h1>", paramValue);
     }
 }

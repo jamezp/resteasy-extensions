@@ -34,11 +34,13 @@
     </properties>
 
     <dependencies>
+        <!-- Provided by the Jakarta EE container -->
         <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-common-utils</artifactId>
-            <version>${project.version}</version>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <scope>provided</scope>
         </dependency>
+        <!-- Provided by the Jakarta EE container -->
         <dependency>
             <groupId>org.jboss.spec.javax.ws.rs</groupId>
             <artifactId>jboss-jaxrs-api_2.1_spec</artifactId>

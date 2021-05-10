@@ -19,27 +19,26 @@ package org.jboss.resteasy.security.encoding;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Collection;
+import java.util.Collections;
 import javax.ws.rs.ConstrainedTo;
-import javax.ws.rs.Consumes;
+import javax.ws.rs.Produces;
 import javax.ws.rs.RuntimeType;
 import javax.ws.rs.container.DynamicFeature;
 import javax.ws.rs.container.ResourceInfo;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.FeatureContext;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
+import javax.ws.rs.ext.Providers;
 
-import org.jboss.resteasy.common.utils.MediaTypes;
 import org.jboss.resteasy.security.encoding.annotations.EncodeEntity;
 import org.jboss.resteasy.security.encoding.annotations.EncodeParameter;
-import org.jboss.resteasy.security.encoding.spi.EncoderConfiguration;
+import org.jboss.resteasy.security.encoding.spi.Encoder;
+import org.jboss.resteasy.security.encoding.util.MediaTypes;
 
 /**
  * A provider used to dynamically register encoders for parameters and entities.
- * <p>
- * By default all {@linkplain String string} parameters will be encoded if the {@linkplain Consumes consuming)
- * {@linkplain MediaType media type} is not in the {@linkplain EncoderConfiguration#ignoredMediaTypes() ignored} media
- * types.
- * </p>
  * <p>
  * Encoding can be disabled for a type, method or parameter with the {@link EncodeParameter} annotation by setting the
  * value to {@code false}.
@@ -59,21 +58,11 @@ import org.jboss.resteasy.security.encoding.spi.EncoderConfiguration;
 @ConstrainedTo(RuntimeType.SERVER)
 public class EncoderFeature implements DynamicFeature {
 
-    private final EncoderConfiguration config;
-
-    /**
-     * Creates the new dynamic feature.
-     */
-    public EncoderFeature() {
-        config = EncoderConfiguration.create();
-    }
+    @Context
+    private Providers providers;
 
     @Override
     public void configure(final ResourceInfo resourceInfo, final FeatureContext context) {
-        if (config.isDisabled()) {
-            return;
-        }
-
         final Method method = resourceInfo.getResourceMethod();
         final Class<?> type = resourceInfo.getResourceClass();
 
@@ -84,9 +73,20 @@ public class EncoderFeature implements DynamicFeature {
         } else {
             encodeEntity = type.getAnnotation(EncodeEntity.class);
         }
+        // TODO (jrp) we should likely do this as different producers might have different encoders
+        final Collection<MediaType> mediaTypes = resolveProducedMediaType(resourceInfo);
+        final ContextResolver<Encoder> encoderContext = providers.getContextResolver(Encoder.class, MediaType.APPLICATION_XHTML_XML_TYPE);
+        if (encoderContext == null) {
+            return;
+        }
+
+        final Encoder encoder = encoderContext.getContext(Encoder.class);
+        if (encoder == null) {
+            return;
+        }
 
         if (encodeEntity != null && encodeEntity.encode()) {
-            context.register(new EncodeEntityReaderInterceptor(config.getEncoder(), encodeEntity));
+            context.register(new EncodeEntityReaderInterceptor(encoder, encodeEntity));
         }
 
         final EncodeParameter encodeParameter;
@@ -96,7 +96,6 @@ public class EncoderFeature implements DynamicFeature {
             encodeParameter = type.getAnnotation(EncodeParameter.class);
         }
 
-        boolean strict = false;
         boolean register = true;
         if (encodeParameter != null) {
             if (!encodeParameter.value()) {
@@ -108,37 +107,26 @@ public class EncoderFeature implements DynamicFeature {
                         // If the annotation is set to true we need to register the provider in strict mode
                         if (parameter.getAnnotation(EncodeParameter.class).value()) {
                             register = true;
-                            strict = true;
                             break;
                         }
                     }
                 }
             }
-        } else {
-            // No @EncoderParameter annotation was found, resolve the media types for the resource and check against
-            // the ignored media types from the config
-            final Collection<MediaType> mediaTypes = getMediaTypes(resourceInfo);
-            final Collection<MediaType> ignoredMediaTypes = config.ignoredMediaTypes();
-            for (MediaType mediaType : mediaTypes) {
-                if (ignoredMediaTypes.contains(mediaType)) {
-                    register = false;
-                    break;
-                }
-            }
         }
         if (register) {
-            context.register(new EncoderParamConverterProvider(config, strict));
+            context.register(new EncoderContainerFilter());
+            //context.register(new EncoderParamConverterProvider(encoder));
         }
     }
 
-    private static Collection<MediaType> getMediaTypes(final ResourceInfo resourceInfo) {
+    private static Collection<MediaType> resolveProducedMediaType(final ResourceInfo resourceInfo) {
         // First attempt to get the media types from the method
         final Method method = resourceInfo.getResourceMethod();
-        Consumes consumes = method.getAnnotation(Consumes.class);
-        if (consumes == null) {
-            consumes = resourceInfo.getResourceClass().getAnnotation(Consumes.class);
+        Produces produces = method.getAnnotation(Produces.class);
+        if (produces == null) {
+            produces = resourceInfo.getResourceClass().getAnnotation(Produces.class);
         }
-        return MediaTypes.getMediaTypes(consumes);
+        return produces == null ? Collections.singleton(MediaType.WILDCARD_TYPE) : MediaTypes.getMediaTypes(produces.value());
     }
 }
 

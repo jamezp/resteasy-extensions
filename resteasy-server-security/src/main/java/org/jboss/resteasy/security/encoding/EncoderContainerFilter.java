@@ -21,7 +21,6 @@ import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.List;
-import java.util.logging.Logger;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.PreMatching;
@@ -48,7 +47,7 @@ public class EncoderContainerFilter implements ContainerRequestFilter {
     private Providers providers;
 
     @Override
-    public void filter(final ContainerRequestContext requestContext) throws IOException {
+    public void filter(final ContainerRequestContext requestContext) {
         final Encoder encoder = getEncoder(resolveMediaType(requestContext));
 
         if (encoder != null) {
@@ -59,7 +58,6 @@ public class EncoderContainerFilter implements ContainerRequestFilter {
             // Filter path parameters
             final List<PathSegment> pathSegments = uriInfo.getPathSegments(true);
             for (PathSegment segment : pathSegments) {
-                // TODO (jrp) we need to do something better with /
                 uriBuilder.path(encoder.encode(segment.getPath()));
 
                 // Filter matrix parameters
@@ -85,7 +83,6 @@ public class EncoderContainerFilter implements ContainerRequestFilter {
             });
 
             final URI uri = uriBuilder.build();
-            Logger.getLogger(EncoderContainerFilter.class.getName()).warning(String.format("New URI: %s", uri));
             requestContext.setRequestUri(uri);
         }
     }
@@ -113,7 +110,7 @@ public class EncoderContainerFilter implements ContainerRequestFilter {
         if (acceptableMediaTypes.size() == 1) {
             return acceptableMediaTypes.get(0);
         }
-        // TODO (jrp) we refine more or process each type?
+        // TODO (jrp) should we refine more or process each type?
         return MediaType.WILDCARD_TYPE;
     }
 }

@@ -16,7 +16,6 @@
 
 package org.jboss.resteasy.extensions.test.encoding;
 
-import java.net.URLDecoder;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -71,6 +70,6 @@ public class DisabledEncoderTestCase extends AbstractEncoderTestCase {
                 .request(MediaType.TEXT_HTML_TYPE)
                 .get();
         // TODO (jrp) do this better
-        validateResponse(response, String.format("<h1>Hello %s</h1>", URLDecoder.decode(SCRIPT_PARAM, "utf-8")));
+        validateResponse(response, String.format("<h1>Hello %s</h1>", SCRIPT_PARAM));
     }
 }

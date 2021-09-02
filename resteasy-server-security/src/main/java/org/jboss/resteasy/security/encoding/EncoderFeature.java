@@ -50,8 +50,6 @@ import org.jboss.resteasy.security.encoding.util.MediaTypes;
  * </p>
  *
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
- * @see EncoderParamConverterProvider
- * @see EncoderParamConverter
  * @see EncodeEntityReaderInterceptor
  */
 @Provider

@@ -29,7 +29,7 @@
     <name>RESTEasy Extensions: Integration Tests</name>
     <description>Integration tests for the RESTEasy Extensions</description>
     <modules>
-        <module>wildfly-integration-tests</module>
+        <module>server-security-integration-tests</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -76,16 +76,16 @@
     <build>
         <testResources>
             <testResource>
-                <directory>src/test/resources</directory>
+                <directory>${project.basedir}/src/test/resources</directory>
                 <filtering>true</filtering>
                 <includes>
-                    <include>arquillian.xml</include>
+                    <include>**/*arquillian.xml</include>
                 </includes>
             </testResource>
             <testResource>
-                <directory>src/test/resources</directory>
+                <directory>${project.basedir}/src/test/resources</directory>
                 <excludes>
-                    <exclude>arquillian.xml</exclude>
+                    <exclude>**/*arquillian.xml</exclude>
                 </excludes>
             </testResource>
         </testResources>
